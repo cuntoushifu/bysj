@@ -1,0 +1,5 @@
+第一需要改 mysql 密码
+第二需要启动redis ip是localhost 如果 ip是其他需要改
+第三数据库sql 在后台代码里 执行eladminsql文件
+第四前台install 失败 多安装几次就好
+登录账号密码admin 123456
