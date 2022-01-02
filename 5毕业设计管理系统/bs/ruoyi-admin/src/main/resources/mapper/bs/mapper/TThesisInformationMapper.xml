@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.student.mapper.TThesisInformationMapper">
+
+    <resultMap type="TThesisInformation" id="TThesisInformationResult">
+        <result property="id"    column="id"    />
+        <result property="studentName"    column="studentName"    />
+        <result property="studentNo"    column="studentNo"    />
+        <result property="thesistext"    column="thesisText"    />
+        <result property="status"    column="status"    />
+        <result property="description"    column="description"    />
+    </resultMap>
+
+    <sql id="selectTThesisInformationVo">
+        select thi.id, ts.studentName,ts.studentNo, thi.thesisText, thi.status, thi.description
+        from t_thesis_information thi
+            LEFT JOIN t_student ts ON ts.id = thi.studentId
+            LEFT JOIN sys_user su ON su.user_name = ts.studentNo
+    </sql>
+
+    <select id="selectTThesisInformationList" parameterType="TThesisInformation" resultMap="TThesisInformationResult">
+        <include refid="selectTThesisInformationVo"/>
+        <where>
+            <if test="studentNo != null "> and studentNo = #{studentNo}</if>
+            <if test="thesistext != null  and thesistext != ''"> and thesisText = #{thesistext}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+
+    <select id="selectTThesisInformationByStuNo" parameterType="String" resultMap="TThesisInformationResult">
+        <include refid="selectTThesisInformationVo"/>
+        where ts.studentNo = #{studentNo}
+    </select>
+
+    <insert id="insertTThesisInformation" parameterType="TThesisInformation" useGeneratedKeys="true" keyProperty="id">
+        insert into t_thesis_information(studentId,thesisText,status,description)
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentNo != null">(select id from t_student where studentNo = #{studentNo}),</if>
+            <if test="thesistext != null">#{thesistext},</if>
+            <if test="status != null">1,</if>
+            <if test="description != null">#{description},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTThesisInformation" parameterType="TThesisInformation">
+        update t_thesis_information tti
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentid != null">studentId = #{studentid},</if>
+            <if test="thesistext != null">thesisText = #{thesistext},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+        </trim>
+        where tti.id = #{id}
+    </update>
+
+    <delete id="deleteTThesisInformationById" parameterType="Long">
+        delete from t_thesis_information where id = #{id}
+    </delete>
+
+    <delete id="deleteTThesisInformationByIds" parameterType="String">
+        delete from t_thesis_information where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

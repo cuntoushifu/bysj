@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.admin.mapper.AdTopicesMapper">
+
+    <resultMap type="AdTopices" id="AdTopicesResult">
+        <result property="id"    column="id"    />
+        <result property="thesisName"    column="thesisName"    />
+        <result property="teacherName"    column="teacherName"    />
+        <result property="status"    column="status"    />
+        <result property="nandu"    column="nandu"    />
+        <result property="liang"    column="liang"    />
+        <result property="tofrom"    column="tofrom"    />
+        <result property="leixing"    column="leixing"    />
+        <result property="descriptions"    column="descriptions"    />
+        <result property="studentNo"    column="studentNo"    />
+    </resultMap>
+
+    <sql id="selectAdTopicesVo">
+        select tt.id, ttt.thesisName,tea.teacherName,ttt.status,ttt.nandu,ttt.liang,ttt.tofrom,ttt.leixing,ttt.descriptions,ts.studentNo
+        from t_topic tt
+                 LEFT JOIN t_thesis_title ttt ON ttt.id = tt.thesisId
+                 LEFT JOIN t_teacher tea ON tea.id = ttt.teacherId
+                 LEFT JOIN t_student ts ON ts.id = tt.studentId
+    </sql>
+
+    <select id="selectAdTopicesList" parameterType="AdTopices" resultMap="AdTopicesResult">
+        <include refid="selectAdTopicesVo"/>
+        <where>
+            <if test="thesisName != null "> and thesisName = #{thesisName}</if>
+            <if test="studentNo != null "> and studentNo = #{studentNo}</if>
+        </where>
+    </select>
+
+    <select id="selectAdTopicesById" parameterType="Long" resultMap="AdTopicesResult">
+        <include refid="selectAdTopicesVo"/>
+        where tt.id = #{id}
+    </select>
+
+    <insert id="insertAdTopices" parameterType="AdTopices" useGeneratedKeys="true" keyProperty="id">
+        insert into t_topic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="thesisid != null">thesisId,</if>
+            <if test="studentid != null">studentId,</if>
+            <if test="selecttime != null">selectTime,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="thesisid != null">#{thesisid},</if>
+            <if test="studentid != null">#{studentid},</if>
+            <if test="selecttime != null">#{selecttime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAdTopices" parameterType="AdTopices">
+<!--        update t_topic-->
+<!--        <trim prefix="SET" suffixOverrides=",">-->
+<!--            <if test="thesisName ! = null"> thesisId = (select id from t_thesis_title where thesisName = #{thesisName} ) </if>-->
+<!--            <if test="studentNo != null">studentId = (select id from t_student where studentNo = #{studentNo}) ,</if>-->
+<!--            <if test="status != null">-->
+<!--            update t_thesis_title(status) values (#{status})</if>-->
+<!--            <if test="teacherName != null">studentId = (select id from t_teacher where teacherName = #{teacherName}),</if>-->
+<!--            <if test="status != null">status = #{status},</if>-->
+<!--            <if test="nandu != null">nandu = #{nandu},</if>-->
+<!--            <if test="liang != null">liang = #{liang},</if>-->
+<!--            <if test="tofrom != null">tofrom = #{tofrom},</if>-->
+<!--            <if test="leixing != null">leixing = #{leixing},</if>-->
+<!--            <if test="descriptions != null">descriptions = #{descriptions},</if>(select id from t_topic where thesisid =-->
+<!--        </trim>-->
+<!--        where id = #{id}-->
+    </update>
+
+    <delete id="deleteAdTopicesById" parameterType="Long">
+        delete from t_topic where id = #{id}
+    </delete>
+
+    <delete id="deleteAdTopicesByIds" parameterType="String">
+        delete from t_topic where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

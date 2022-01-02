@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.admin.mapper.AdStudentScoreMapper">
+
+    <resultMap type="AdStudentScore" id="AdStudentScoreResult">
+        <result property="id"    column="id"    />
+        <result property="studentNo"    column="studentNo"    />
+        <result property="studentName"    column="studentName"    />
+        <result property="majorName"    column="majorName"    />
+        <result property="thesisresult"    column="thesisResult"    />
+        <result property="inputman"    column="inputMan"    />
+    </resultMap>
+
+    <sql id="selectAdStudentScoreVo">
+        select tss.id,ts.studentNo, ts.studentName, tm.majorName, tss.thesisResult, tss.inputMan
+        from t_student_score tss
+                 LEFT JOIN t_student ts ON ts.id = tss.studentId
+                 LEFT JOIN t_major tm on tm.id = ts.majorId
+                 LEFT JOIN sys_user su on su.user_name = tss.inputMan
+    </sql>
+
+    <select id="selectAdStudentScoreList" parameterType="AdStudentScore" resultMap="AdStudentScoreResult">
+        <include refid="selectAdStudentScoreVo"/>
+        <where>
+            <if test="studentNo != null "> and studentNo = #{studentNo}</if>
+            <if test="thesisresult != null "> and thesisResult = #{thesisresult}</if>
+            <if test="inputman != null  and inputman != ''"> and inputMan = #{inputman}</if>
+        </where>
+    </select>
+
+    <select id="selectAdStudentScoreById" parameterType="Long" resultMap="AdStudentScoreResult">
+        <include refid="selectAdStudentScoreVo"/>
+        where tss.id = #{id}
+    </select>
+
+    <select id="selectAdStudentScoreByStudentNo" parameterType="String" resultMap="AdStudentScoreResult">
+        <include refid="selectAdStudentScoreVo"/>
+        where ts.studentNo = #{studentNo}
+    </select>
+
+    <insert id="insertAdStudentScore" parameterType="AdStudentScore" useGeneratedKeys="true" keyProperty="id">
+        insert into t_student_score(studentid,thesisresult,inputman)
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentNo != null">
+                (select id from t_student where studentNo = #{studentNo}),
+            </if>
+            <if test="thesisresult != null">#{thesisresult},</if>
+            <if test="inputman != null">
+                #{inputman},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAdStudentScore" parameterType="AdStudentScore">
+        update t_student_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentid != null">studentNo = #{studentNo},</if>
+            <if test="thesisresult != null">thesisResult = #{thesisresult},</if>
+            <if test="inputman != null">inputman = (select user_name from sys_user where user_name = #{inputman}),</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAdStudentScoreById" parameterType="Long">
+        delete from t_student_score where id = #{id}
+    </delete>
+
+    <delete id="deleteAdStudentScoreByIds" parameterType="String">
+        delete from t_student_score where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
