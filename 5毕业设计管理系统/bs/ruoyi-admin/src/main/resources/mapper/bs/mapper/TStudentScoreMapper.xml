@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.student.mapper.TStudentScoreMapper">
+
+    <resultMap type="TStudentScore" id="TStudentScoreResult">
+        <result property="id"    column="id"    />
+        <result property="studentName"    column="studentName"    />
+        <result property="thesisresult"    column="thesisResult"    />
+    </resultMap>
+
+    <sql id="selectTStudentScoreVo">
+        select tss.id, stu.studentName, tss.thesisResult
+        from t_student_score tss
+            left join t_student stu on stu.id = tss.studentid
+            LEFT JOIN sys_user su ON su.user_name = stu.studentNo
+    </sql>
+
+    <select id="selectTStudentScoreList" parameterType="TStudentScore" resultMap="TStudentScoreResult">
+        <include refid="selectTStudentScoreVo"/>
+        <where>
+            <if test="studentNo != null "> and studentNo = #{studentNo}</if>
+            <if test="thesisresult != null "> and thesisResult = #{thesisresult}</if>
+            <if test="inputman != null  and inputman != ''"> and inputMan = #{inputman}</if>
+        </where>
+    </select>
+
+    <select id="selectTStudentScoreById" parameterType="Long" resultMap="TStudentScoreResult">
+        <include refid="selectTStudentScoreVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTStudentScore" parameterType="TStudentScore" useGeneratedKeys="true" keyProperty="id">
+        insert into t_student_score
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="studentid != null">studentId,</if>
+            <if test="thesisresult != null">thesisResult,</if>
+            <if test="inputman != null">inputMan,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentid != null">#{studentid},</if>
+            <if test="thesisresult != null">#{thesisresult},</if>
+            <if test="inputman != null">#{inputman},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTStudentScore" parameterType="TStudentScore">
+        update t_student_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentid != null">studentId = #{studentid},</if>
+            <if test="thesisresult != null">thesisResult = #{thesisresult},</if>
+            <if test="inputman != null">inputMan = #{inputman},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTStudentScoreById" parameterType="Long">
+        delete from t_student_score where id = #{id}
+    </delete>
+
+    <delete id="deleteTStudentScoreByIds" parameterType="String">
+        delete from t_student_score where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

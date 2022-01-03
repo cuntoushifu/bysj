@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.admin.mapper.AdThesisInformationMapper">
+
+    <resultMap type="AdThesisInformation" id="AdThesisInformationResult">
+        <result property="id"    column="id"    />
+        <result property="studentNo"    column="studentNo"    />
+        <result property="studentName"    column="studentName"    />
+        <result property="majorName"    column="majorName"    />
+        <result property="thesisName"    column="thesisName"    />
+        <result property="thesistext"    column="thesisText"    />
+        <result property="status"    column="status"    />
+        <result property="description"    column="description"    />
+    </resultMap>
+
+    <sql id="selectAdThesisInformationVo">
+        select tti.id, ts.studentNo, ts.studentName,tm.majorName,ttt.thesisName, tti.thesisText, tti.status, tti.description
+        from t_thesis_information tti
+                 LEFT JOIN t_student ts ON ts.id = tti.studentId
+                 LEFT JOIN t_major tm on tm.id = ts.majorId
+                 LEFT JOIN t_topic tt on tt.studentId = ts.id
+                 LEFT JOIN t_thesis_title ttt on ttt.id = tt.thesisId
+    </sql>
+
+    <select id="selectAdThesisInformationList" parameterType="AdThesisInformation" resultMap="AdThesisInformationResult">
+        <include refid="selectAdThesisInformationVo"/>
+        <where>
+            <if test="studentid != null "> and studentId = #{studentid}</if>
+            <if test="thesistext != null  and thesistext != ''"> and thesisText = #{thesistext}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+
+    <select id="selectAdThesisInformationById" parameterType="Long" resultMap="AdThesisInformationResult">
+        <include refid="selectAdThesisInformationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAdThesisInformation" parameterType="AdThesisInformation" useGeneratedKeys="true" keyProperty="id">
+        insert into t_thesis_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="studentid != null">studentId,</if>
+            <if test="thesistext != null">thesisText,</if>
+            <if test="status != null">status,</if>
+            <if test="description != null">description,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentid != null">#{studentid},</if>
+            <if test="thesistext != null">#{thesistext},</if>
+            <if test="status != null">#{status},</if>
+            <if test="description != null">#{description},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAdThesisInformation" parameterType="AdThesisInformation">
+        update t_thesis_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentid != null">studentId = #{studentid},</if>
+            <if test="thesistext != null">thesisText = #{thesistext},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAdThesisInformationById" parameterType="Long">
+        delete from t_thesis_information where id = #{id}
+    </delete>
+
+    <delete id="deleteAdThesisInformationByIds" parameterType="String">
+        delete from t_thesis_information where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

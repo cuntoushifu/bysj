@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.bs.student.mapper.TDoubtMapper">
+
+    <resultMap type="TDoubt" id="TDoubtResult">
+        <result property="id"    column="id"    />
+        <result property="studentName"    column="studentName"    />
+        <result property="studentNo"    column="studentNo"    />
+        <result property="studentdoubt"    column="studentDoubt"    />
+        <result property="answer"    column="answer"    />
+    </resultMap>
+
+    <sql id="selectTDoubtVo">
+        select td.id, ts.studentName, td.studentDoubt, td.answer from t_doubt td
+            LEFT JOIN t_student ts ON ts.id = td.studentId
+    </sql>
+
+    <select id="selectTDoubtList" parameterType="TDoubt" resultMap="TDoubtResult">
+        <include refid="selectTDoubtVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="studentid != null "> and studentId = #{studentid}</if>
+            <if test="studentdoubt != null  and studentdoubt != ''"> and studentDoubt = #{studentdoubt}</if>
+            <if test="answer != null  and answer != ''"> and answer = #{answer}</if>
+        </where>
+    </select>
+
+    <select id="selectTDoubtById" parameterType="Integer" resultMap="TDoubtResult">
+        <include refid="selectTDoubtVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTDoubt" parameterType="TDoubt" useGeneratedKeys="true" keyProperty="id">
+        INSERT into t_doubt(studentId,studentDoubt,answer) VALUES(
+        (select id from t_student where studentNo = #{studentNo}),#{studentdoubt},#{answer}
+        )
+    </insert>
+
+    <update id="updateTDoubt" parameterType="TDoubt">
+        update t_doubt
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentid != null">studentId = #{studentid},</if>
+            <if test="studentdoubt != null">studentDoubt = #{studentdoubt},</if>
+            <if test="answer != null">answer = #{answer},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTDoubtById" parameterType="Integer">
+        delete from t_doubt where id = #{id}
+    </delete>
+
+    <delete id="deleteTDoubtByIds" parameterType="String">
+        delete from t_doubt where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
